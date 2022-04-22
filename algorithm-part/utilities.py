@@ -113,3 +113,107 @@ class SportsDataset(Dataset):
 
     def __len__(self):
         return len(self.df)
+
+
+## 数据切分
+def get_major_frequency(raw_data):
+    """
+    raw_data = pd.read_csv('lefthand_abnormal_1.csv',header = None)
+    """
+    data1 = raw_data.iloc[:,1:]
+    dat = data1.apply(lambda x: (x - np.min(x)) / (np.max(x) - np.min(x)))
+    mat = np.transpose(np.array(dat))
+    U,S,VT =np.linalg.svd(mat)
+    return VT[1,:]
+
+def simplist_filter(x,lim = 0.01):
+    x_ = x.copy()
+    for idx in range(3,len(x_)):
+        if abs(x_[idx] - x_[idx-3]) > lim:
+            x_[idx] = x[idx-3]
+    return x_
+
+# def get_raw_start_end_list(V_test,lim_a=-0.0004,lim_b=0.0004):
+#     start_list = []
+#     end_list = []
+#     for step in range(1,len(V_test)):
+#         if V_test[step]-V_test[step-1]<lim_a and V_test[step-1]>0 and V_test[step+40]<-0.01:
+#             start_list.append(step-1)
+#         elif V_test[step]-V_test[step-1]>lim_b and V_test[step]>0 and V_test[step-40]<-0.01:
+#             end_list.append(step)
+#     #assert len(step_list)%2 == 0
+#     start_list = np.array(start_list)
+#     end_list = np.array(end_list)
+#     return start_list,end_list
+#
+#
+# def get_start_edit(start_list_raw):
+#     start_list = start_list_raw.copy()
+#     for i in range(len(start_list)):
+#         if start_list[i] != -1:
+#             count = 0
+#             for j in range(i+1,len(start_list)):
+#                 if start_list[j]-start_list[i]<80:
+#                     count +=1
+#                     start_list[j] = -1
+#             if count < 1:
+#                 start_list[i] = -1
+#     start_list_edit = start_list[np.where(start_list != -1)]
+#     return start_list_edit
+#
+# def get_end_edit(end_list_raw):
+#     end_list = end_list_raw.copy()
+#     end_list = end_list[::-1]
+#     for i in range(len(end_list)):
+#         if end_list[i] != -1:
+#             count = 0
+#             for j in range(i+1,len(end_list)):
+#                 if abs(end_list[j]-end_list[i])<80:
+#                     count +=1
+#                     end_list[j] = -1
+#             if count < 1:
+#                 end_list[i] = -1
+#     end_list_edit = end_list[np.where(end_list != -1)][::-1]
+#     return end_list_edit
+
+def get_raw_start_end_list(V_test,lim_a=-0.0004,lim_b=0.0004):
+    start_list = []
+    end_list = []
+    for step in range(1,len(V_test)):
+        if V_test[step]-V_test[step-1]<lim_a and V_test[step-1]>0 and V_test[step+50] < 0:
+            start_list.append(step-1)
+        elif V_test[step]-V_test[step-1]>lim_b and V_test[step]>0 and V_test[step-50] < 0:
+            end_list.append(step)
+    #assert len(step_list)%2 == 0
+    start_list = np.array(start_list)
+    end_list = np.array(end_list)
+    return start_list,end_list
+
+def get_start_edit(start_list_raw):
+    start_list = start_list_raw.copy()
+    for i in range(len(start_list)):
+        if start_list[i] != -1:
+            count = 0
+            for j in range(i+1,len(start_list)):
+                if start_list[j]-start_list[i]<200:
+                    count +=1
+                    start_list[j] = -1
+            if count < 3:
+                start_list[i] = -1
+    start_list_edit = start_list[np.where(start_list != -1)]
+    return start_list_edit
+
+def get_end_edit(end_list_raw):
+    end_list = end_list_raw.copy()
+    end_list = end_list[::-1]
+    for i in range(len(end_list)):
+        if end_list[i] != -1:
+            count = 0
+            for j in range(i+1,len(end_list)):
+                if abs(end_list[j]-end_list[i])<200:
+                    count +=1
+                    end_list[j] = -1
+            if count < 3:
+                end_list[i] = -1
+    end_list_edit = end_list[np.where(end_list != -1)][::-1]
+    return end_list_edit
