@@ -120,8 +120,8 @@ def get_major_frequency(raw_data):
     """
     raw_data = pd.read_csv('lefthand_abnormal_1.csv',header = None)
     """
-    data1 = raw_data.iloc[:,1:]
-    dat = data1.apply(lambda x: (x - np.min(x)) / (np.max(x) - np.min(x)))
+    # data1 = raw_data.iloc[:,1:]
+    dat = raw_data.apply(lambda x: (x - np.min(x)) / (np.max(x) - np.min(x)))
     mat = np.transpose(np.array(dat))
     U,S,VT =np.linalg.svd(mat)
     return VT[1,:]
