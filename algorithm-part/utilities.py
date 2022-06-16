@@ -20,6 +20,7 @@ from sklearn.preprocessing import MinMaxScaler
 import math
 import pywt
 from math import log
+import json
 
 
 def set_seed(seed):
@@ -217,3 +218,28 @@ def get_end_edit(end_list_raw):
                 end_list[i] = -1
     end_list_edit = end_list[np.where(end_list != -1)][::-1]
     return end_list_edit
+
+
+def save_dict(pet, filename):
+    with open(filename, 'w') as f:
+        f.write(json.dumps(pet))
+
+
+def load_dict(filename):
+    with open(filename) as f:
+        pet = json.loads(f.read())
+    return pet
+
+def save_model_weights(model, filename, verbose=1, cp_folder=""):
+    """
+    Saves the weights of a PyTorch model.
+
+    Args:
+        model (torch model): Model to save the weights of.
+        filename (str): Name of the checkpoint.
+        verbose (int, optional): Whether to display infos. Defaults to 1.
+        cp_folder (str, optional): Folder to save to. Defaults to "".
+    """
+    if verbose:
+        print(f"\n -> Saving weights to {os.path.join(cp_folder, filename)}\n")
+    torch.save(model.state_dict(), os.path.join(cp_folder, filename))
